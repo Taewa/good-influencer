@@ -6,6 +6,10 @@ import "./GoodInfluencer.sol";
 contract GoodInfluencerManager {
     GoodInfluencer goodInfluencer;
 
+    event Donate(address indexed donator, address indexed receiver, uint256 amount);
+    event EarnTrophy(address indexed donator, address indexed receiver);
+    event Withdraw(address indexed influencer, uint256 amount);
+
     struct Achievement {
         bool isEnabled;
         uint256 totalDonation;
@@ -37,6 +41,8 @@ contract GoodInfluencerManager {
 
         _achievement.totalDonation = _donation + _achievement.totalDonation;
         _achievement.donation[_donator] = _donation + _achievement.donation[_donator];
+
+        emit Donate(_donator, _influencer, _donation);
     }
 
     /**
@@ -49,6 +55,7 @@ contract GoodInfluencerManager {
 
         if (_donation == 0) {
             goodInfluencer.transfer(_influencer, 1);
+            emit EarnTrophy(msg.sender, _influencer);
         }
     }
 
@@ -67,6 +74,8 @@ contract GoodInfluencerManager {
         achievements[msg.sender].totalDonation -= _amount;
 
         (bool isSent, ) = address(msg.sender).call{value: _amount}("");
+
+        emit Withdraw(msg.sender, _amount);
 
         require(isSent, "Withdraw failed.");
     }

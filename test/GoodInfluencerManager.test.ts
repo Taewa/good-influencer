@@ -189,6 +189,49 @@ describe('GoodInfluencerManager', async () => {
 
       expect(numTrophy).to.be.equal(2, 'since donator1 and donator2 are 2 different addresses, trophy should be incresed.');
     });
+
+    it('should emit Donate event after donation() execution', async() => {
+      // set up influencer
+      await managerContract
+        .connect(influencer)
+        .registerInfluencer(influencer);
+ 
+      // donate 1
+      await expect(
+        managerContract
+          .connect(donator1)
+          .donate(influencer.address, {
+            from: donator1.address,
+            value: 100  // 100 wei
+        }))
+      .to.emit(managerContract, "Donate")
+      .withArgs(
+        donator1.address,
+        influencer.address,
+        100,
+      );
+    });
+
+    it('should emit EarnTrophy event after updateTrophy() execution', async() => {
+      // set up influencer
+      await managerContract
+        .connect(influencer)
+        .registerInfluencer(influencer);
+ 
+      // donate 1
+      await expect(
+        managerContract
+          .connect(donator1)
+          .donate(influencer.address, {
+            from: donator1.address,
+            value: 100  // 100 wei
+        }))
+      .to.emit(managerContract, "EarnTrophy") // updateTrophy() is an internal fn and executed by donate()
+      .withArgs(
+        donator1.address,
+        influencer.address,
+      );
+    });
   });
 
   describe('withdraw()', async() => {
@@ -257,6 +300,18 @@ describe('GoodInfluencerManager', async () => {
       const [_, totalDonatedAmount] = await managerContract.achievements(influencer.address);
 
       expect(totalDonatedAmount).to.be.equal(120);  // 100 + 20
+    });
+
+    it('should emit Withdraw event after withdraw() execution', async () => {
+      await expect(
+        managerContract
+          .connect(influencer)
+          .withdraw(120) // 100 + 20
+      ).to.emit(managerContract, "Withdraw")
+      .withArgs(
+        influencer.address,
+        120,
+      );
     });
   });
 });
