@@ -1,20 +1,25 @@
 # Good influencer app
+
 * solidity (yul)
+* upgradeable contracts (wip)
 * typescript
 * hardhat
+* unit & integration tests
+* frontend app (wip)
+* deploy to the testnet (wip)
 
 Explanation to be added...
 
-# Sample Hardhat Project
-
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
-
-Try running some of the following tasks:
+# Tests
 
 ```shell
-npx hardhat help
 npx hardhat test
-REPORT_GAS=true npx hardhat test
+```
+
+# Run & deploy app
+```shell
 npx hardhat node
 npx hardhat run scripts/deploy.ts
 ```
+
+
