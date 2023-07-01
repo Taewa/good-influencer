@@ -1,13 +1,23 @@
-import { ethers } from "hardhat";
+import { ethers, upgrades } from "hardhat";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  const goodInfluencer = await ethers.deployContract("GoodInfluencer", [deployer.address]);
+  // const goodInfluencer = await ethers.deployContract("GoodInfluencer", [deployer.address]);
+  // await goodInfluencer.waitForDeployment();
+  // const address = await goodInfluencer.getAddress();
+  // console.log(`deployed goodInfluencer addres is :${address}`);
 
-  await goodInfluencer.waitForDeployment();
+  const GoodInfluencerFactory = await ethers.getContractFactory("GoodInfluencer");
+  const goodInfluencer = await upgrades.deployProxy(
+    GoodInfluencerFactory,
+    [], 
+    {
+      initializer: "initialize",
+      kind: "transparent",
+    }
+  )
 
-  const address = await goodInfluencer.getAddress();
-  console.log(`deployed goodInfluencer addres is :${address}`);
+  await goodInfluencer.deployed();
 }
 
 // We recommend this pattern to be able to use async/await everywhere

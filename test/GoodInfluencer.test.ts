@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers, upgrades } from "hardhat";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { GoodInfluencer } from "../typechain-types/contracts/GoodInfluencer";
@@ -9,14 +9,23 @@ describe('GoodInfluencer', async () => {
   let accounts: HardhatEthersSigner[];
   let deployer:SignerWithAddress;
 
-  beforeEach( async () => {
+  beforeEach(async () => {
     accounts = await ethers.getSigners();
     deployer = accounts[0];
-    contract = await ethers.deployContract("GoodInfluencer", [deployer.address]);
+    
+    const ContractFactory = await ethers.getContractFactory("GoodInfluencer");
 
-    await contract.waitForDeployment();
-    const address = await contract.getAddress();
-    // console.log(`deployed goodInfluencer addres is :${address}`);
+    contract = await upgrades.deployProxy(
+      ContractFactory,
+      [], 
+      {
+        initializer: "initialize",
+        kind: "transparent",
+      }
+    )
+
+    await contract.deployed();
+    // console.log(`deployed goodInfluencer addres is :${contract.address}`);
   });
 
   it('should have 0 token at the beginning', async () => {

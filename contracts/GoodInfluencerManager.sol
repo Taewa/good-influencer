@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.19;
 
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./GoodInfluencer.sol";
 
-contract GoodInfluencerManager {
+contract GoodInfluencerManager is Initializable {
     GoodInfluencer goodInfluencer;
 
     event Donate(address indexed donator, address indexed receiver, uint256 amount);
@@ -19,7 +20,7 @@ contract GoodInfluencerManager {
     // influencer to achievement
     mapping (address => Achievement) public achievements;
     
-    constructor(address payable _goodInfluencer) {
+    function initialize(address payable _goodInfluencer) external initializer {
         goodInfluencer = GoodInfluencer(_goodInfluencer);
     }
 

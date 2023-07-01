@@ -1,5 +1,7 @@
 # Good influencer app
 
+Sometimes, there are coworkers who influence 
+
 * solidity (yul)
 * upgradeable contracts (wip)
 * typescript
