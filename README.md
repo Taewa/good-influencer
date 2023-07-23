@@ -1,5 +1,8 @@
 # Good influencer app
 
+## Frontend screenshot (WIP)
+<img src='./fe-screenshot.png' />
+
 Sometimes, there are coworkers who influence 
 
 * solidity (yul)
