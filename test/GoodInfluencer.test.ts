@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ethers, upgrades } from "hardhat";
+import { ethers } from "hardhat";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { GoodInfluencer } from "../typechain-types/contracts/GoodInfluencer";
@@ -14,15 +14,7 @@ describe('GoodInfluencer', async () => {
     deployer = accounts[0];
     
     const ContractFactory = await ethers.getContractFactory("GoodInfluencer");
-
-    contract = await upgrades.deployProxy(
-      ContractFactory,
-      [], 
-      {
-        initializer: "initialize",
-        kind: "transparent",
-      }
-    )
+    contract = await ContractFactory.deploy(deployer.address);
 
     await contract.deployed();
     // console.log(`deployed goodInfluencer addres is :${contract.address}`);

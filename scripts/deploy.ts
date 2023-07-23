@@ -1,23 +1,38 @@
 import { ethers, upgrades } from "hardhat";
 
 async function main() {
+  /**
+   * GoodInfluencer
+   */
   const [deployer] = await ethers.getSigners();
-  // const goodInfluencer = await ethers.deployContract("GoodInfluencer", [deployer.address]);
-  // await goodInfluencer.waitForDeployment();
-  // const address = await goodInfluencer.getAddress();
-  // console.log(`deployed goodInfluencer addres is :${address}`);
+  const GoodInfluencer = await ethers.getContractFactory("GoodInfluencer");
+  const goodInfluencer = await GoodInfluencer.deploy(deployer.address);
+  
+  await goodInfluencer.deployed();
+  
+  const goodInfluencerAddress = goodInfluencer.address;
+  console.log('goodInfluencer address:', goodInfluencerAddress);
 
-  const GoodInfluencerFactory = await ethers.getContractFactory("GoodInfluencer");
-  const goodInfluencer = await upgrades.deployProxy(
-    GoodInfluencerFactory,
-    [], 
+
+  /**
+   * GoodInfluencerManager (Proxy)
+   */
+  const ManagerFactory = await ethers.getContractFactory("GoodInfluencerManager");
+  const manager = await upgrades.deployProxy(
+    ManagerFactory,
+    [goodInfluencerAddress], 
     {
       initializer: "initialize",
       kind: "transparent",
     }
   )
 
-  await goodInfluencer.deployed();
+  console.log('manager address : ', manager.address);
+
+  /**
+   * Minting
+   */
+  await goodInfluencer.mintToTokenManager(manager.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

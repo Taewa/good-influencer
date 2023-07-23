@@ -10,6 +10,7 @@ contract GoodInfluencerManager is Initializable {
     event Donate(address indexed donator, address indexed receiver, uint256 amount);
     event EarnTrophy(address indexed donator, address indexed receiver);
     event Withdraw(address indexed influencer, uint256 amount);
+    event RegisteringInfluencer(address indexed influencer, uint256 when);
 
     struct Achievement {
         bool isEnabled;
@@ -60,13 +61,17 @@ contract GoodInfluencerManager is Initializable {
         }
     }
 
+    //TODO: 스마트컨트랙트가 등록못하게하기
     function registerInfluencer(address _influencer) external {
         require(msg.sender == _influencer, "Only influencers themselves can register.");
 
         // To prevent donating a wrong address
         achievements[_influencer].isEnabled = true;
+
+        emit RegisteringInfluencer(_influencer, block.timestamp);
     }
 
+    //TODO: 스마트컨트랙트가 못가져가게 하기
     function withdraw(uint256 _amount) payable external {
         uint256 _totalDonation = achievements[msg.sender].totalDonation;
 
@@ -79,5 +84,9 @@ contract GoodInfluencerManager is Initializable {
         emit Withdraw(msg.sender, _amount);
 
         require(isSent, "Withdraw failed.");
+    }
+
+    function isRegisteredInfluencer(address _influencer) external view returns(bool) {
+        return achievements[_influencer].isEnabled;
     }
 }

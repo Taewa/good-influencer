@@ -23,14 +23,7 @@ describe('GoodInfluencerManager', async () => {
 
     const InfluencerContractFactory = await ethers.getContractFactory("GoodInfluencer");
 
-    influencerContract = await upgrades.deployProxy(
-      InfluencerContractFactory,
-      [], 
-      {
-        initializer: "initialize",
-        kind: "transparent",
-      }
-    )
+    influencerContract = await InfluencerContractFactory.deploy(deployer.address);
 
     await influencerContract.deployed();
     // console.log(`deployed GoodInfluencer address is :${influencerContract.address}`);
