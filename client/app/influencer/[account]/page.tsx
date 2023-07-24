@@ -8,11 +8,11 @@ import GoodInfluencerManager from '../../../utils/GoodInfluencerManager.json';
 
 export default function Influencer({params} : {params : {account: string}}) { // param: to get url params
   const [ethereum, setEthereum] = useState(undefined);
-  const [connectedAccount, setConnectedAccount] = useState(undefined);
-  const [goodInfluencerContract, setGoodInfluencerContract] = useState(undefined);
-  const [managerContract, setManagerContract] = useState(undefined);
-  const [isRegistered, setRegistration] = useState(false);
-  const [influencerAddress, setInfluencerAddress] = useState<string>('');
+  const [connectedAccount, setConnectedAccount] = useState<string>('');    // connected wallet account
+  const [influencerAddress, setInfluencerAddress] = useState<string>(''); // infuencer. account from the url param
+  const [goodInfluencerContract, setGoodInfluencerContract] = useState<ethers.Contract>();
+  const [managerContract, setManagerContract] = useState<ethers.Contract>();
+  const [isRegistered, setRegistration] = useState<boolean>(false);
   const [numTrophy, setNumTrophy] = useState<number>(0);
   const [donationPrice, setDonationPrice] = useState<number>(0);
   const [convertedToEthDonationPrice, setConvertedToEthDonationPrice] = useState<string | number>(0);
@@ -68,7 +68,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
   };
 
   const registerInfluencer = async () => {
-    const tx = await managerContract.registerInfluencer(influencerAddress, {gasLimit: 1000000}); // TODO: what's the proper gas estimation?
+    const tx = await managerContract.registerInfluencer(connectedAccount, {gasLimit: 1000000}); // TODO: what's the proper gas estimation?
     const res = await tx.wait();
     
     console.log("Transaction:", res, tx);
@@ -94,7 +94,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
       setEthereum(window.ethereum)
       setInfluencerAddress(account);
     } else {
-      // throw an error
+      // TODO: throw an error => redirect to other page
     }
   }
 
@@ -108,7 +108,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
     setConvertedToEthDonationPrice(converted);
   }
 
-  const watchEvents = () => {
+  const attachEvents = () => {
     ethereum.on("accountsChanged", (args) => {
       console.log(`accountsChanged from ${connectedAccount} to ${args[0]}`);
       if (args[0] !== connectedAccount) {
@@ -142,7 +142,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
 
   useEffect(() => {
     if (managerContract) {
-      watchEvents();
+      attachEvents();
       getTrophy();
       isRegisterInfluencer();
     }
@@ -166,14 +166,6 @@ export default function Influencer({params} : {params : {account: string}}) { //
 
       <p id='description' className='py-8 text-lg'>Hi! I am a software engineer and love helping my coworkers!</p>
 
-      {/* {!connectedAccount &&
-        <button 
-          id='connectButton' 
-          className='p-6 my-6 rounded-md bg-teal-700 disabled:bg-gray-700 disabled:cursor-not-allowed'
-          onClick={connectAccount}>
-          Connect to wallet
-        </button>
-      } */}
       <section className='mb-4'>
         <div id='donationBlock' className='flex rounded-md overflow-hidden'>
           <input 
@@ -193,13 +185,6 @@ export default function Influencer({params} : {params : {account: string}}) { //
         </div>
         <p className='text-center text-sm'>equivalent to {convertedToEthDonationPrice} ETH</p>
       </section>
-     
-      {/* <button 
-        className='p-6 mb-4 rounded-md bg-green-600'
-        disabled={!connectedAccount}
-        onClick={isRegisterInfluencer}>
-        Check registration
-      </button> */}
 
       <button 
         className='p-6 mb-4 rounded-md bg-teal-700'
