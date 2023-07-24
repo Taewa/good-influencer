@@ -6,11 +6,11 @@
 Sometimes, there are coworkers who influence 
 
 * solidity (yul)
-* upgradeable contracts (wip)
+* upgradeable contracts
 * typescript
 * hardhat
 * unit & integration tests
-* frontend app (wip)
+* frontend app
 * deploy to the testnet (wip)
 
 Explanation to be added...
