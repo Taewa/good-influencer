@@ -17,10 +17,9 @@ export default function Influencer({params} : {params : {account: string}}) { //
   const [donationPrice, setDonationPrice] = useState<number>(0);
   const [convertedToEthDonationPrice, setConvertedToEthDonationPrice] = useState<string | number>(0);
 
-  // TODO: make dynamic contract addresses
-  const goodInfluencerContractAddress:string = '0x3Aa5ebB10DC797CAC828524e59A333d0A371443c';
-  const managerContractAddress:string = '0xc6e7DF5E7b4f2A278906862b61205850344D4e7d';
-
+  // TODO: if any contract address has problem, throw an error
+  const goodInfluencerContractAddress = process.env.INFLUENCER_CONTRACT_ADDRESS;
+  const managerContractAddress = process.env.INFLUENCER_MANAGER_CONTRACT_ADDRESS;
   const handleAccounts = async () => {
     const accounts = await ethereum.request({ method: 'eth_accounts' });
 
@@ -38,8 +37,8 @@ export default function Influencer({params} : {params : {account: string}}) { //
     if (ethereum && connectedAccount) {
       const provider = new ethers.BrowserProvider(ethereum);
       const signer = await provider.getSigner();
-      const goodInfluencerContract: ethers.Contract = new ethers.Contract(goodInfluencerContractAddress, GoodInfluencer.abi, signer);
-      const managerContract: ethers.Contract = new ethers.Contract(managerContractAddress, GoodInfluencerManager.abi, signer);
+      const goodInfluencerContract: ethers.Contract = new ethers.Contract(goodInfluencerContractAddress as string, GoodInfluencer.abi, signer);
+      const managerContract: ethers.Contract = new ethers.Contract(managerContractAddress as string, GoodInfluencerManager.abi, signer);
 
       setManagerContract(managerContract);
       setGoodInfluencerContract(goodInfluencerContract);
