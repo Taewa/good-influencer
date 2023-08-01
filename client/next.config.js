@@ -4,34 +4,41 @@ const {
 } = require('next/constants')
 
 /**
- * When your run next dev or npm run dev, you will always use the environmental variables assigned when isDev is true in the example.
+ * When your run next dev or npm run dev, you will always use the environmental variables assigned when isLocal is true in the example.
  * When you run next build then next start, assuming you set externally the environmental variable STAGING to anything but 1, you will get the results assuming isProd is true.
- * When your run next build or npm run build in production, if the environmental variable STAGING is set to 1, isStaging will be set and you will get those values returned.
+ * When your run next build or npm run build in production, if the environmental variable STAGING is set to 1, isAcceptance will be set and you will get those values returned.
  */
 /** @type {import('next').NextConfig} */
 module.exports = (phase) => {
     // when started in development mode `next dev` or `npm run dev` regardless of the value of STAGING environment variable
-    const isDev = phase === PHASE_DEVELOPMENT_SERVER
+    const isLocal = phase === PHASE_DEVELOPMENT_SERVER && process.env.TESTNET !== '1'
+    const isTestNet = phase === PHASE_DEVELOPMENT_SERVER && process.env.TESTNET === '1'
     // when `next build` or `npm run build` is used
     const isProd = phase === PHASE_PRODUCTION_BUILD && process.env.STAGING !== '1'  // Check .env.* files for 'STAGING'
     // when `next build` or `npm run build` is used
-    const isStaging =
-        phase === PHASE_PRODUCTION_BUILD && process.env.STAGING === '1'
+    // const isAcceptance =
+    //     phase === PHASE_PRODUCTION_BUILD && process.env.STAGING === '1'
 
-    console.log(`isDev:${isDev}  isProd:${isProd}   isStaging:${isStaging}`)
+    console.log(`isLocal:${isLocal}  isTestNet:${isTestNet}   isProd:${isProd}`)
 
     const env = {
+        MODE: (() => {
+            if (isLocal) return 'dev'
+            if (isProd) return 'prod'
+            if (isTestNet) return 'test'
+            return 'MODE:not (isLocal,isProd && !isAcceptance,isProd && isAcceptance)'
+        })(),
         INFLUENCER_CONTRACT_ADDRESS: (() => {
-            if (isDev) return '0x3Aa5ebB10DC797CAC828524e59A333d0A371443c'
+            if (isLocal) return '0x3Aa5ebB10DC797CAC828524e59A333d0A371443c'
             if (isProd) return ''
-            if (isStaging) return ''
-            return 'INFLUENCER_CONTRACT_ADDRESS:not (isDev,isProd && !isStaging,isProd && isStaging)'
+            if (isTestNet) return '0xf780dB1caeE620a61a337b4F744A76D5ccD28575'
+            return 'INFLUENCER_CONTRACT_ADDRESS:not (isLocal,isProd && !isAcceptance,isProd && isAcceptance)'
         })(),
         INFLUENCER_MANAGER_CONTRACT_ADDRESS: (() => {
-            if (isDev) return '0xc6e7DF5E7b4f2A278906862b61205850344D4e7d'
+            if (isLocal) return '0xc6e7DF5E7b4f2A278906862b61205850344D4e7d'
             if (isProd) return ''
-            if (isStaging) return ''
-            return 'INFLUENCER_MANAGER_CONTRACT_ADDRESS:not (isDev,isProd && !isStaging,isProd && isStaging)'
+            if (isTestNet) return '0x03F791D5F396D4c4D04bBC046daf26380c1BaB40'
+            return 'INFLUENCER_MANAGER_CONTRACT_ADDRESS:not (isLocal,isProd && !isAcceptance,isProd && isAcceptance)'
         })(),
     }
 
