@@ -30,6 +30,7 @@ contract GoodInfluencerManager is Initializable {
       _;
     }
 
+    //TODO: 자기 스스로 도네이션 못하게 하기
     function donate(address _influencer) public payable onlyRegistered(_influencer) {
         require(msg.value > 0, "Minimum ETH is required.");
 
