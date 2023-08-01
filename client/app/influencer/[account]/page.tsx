@@ -1,26 +1,35 @@
 'use client'
 
+declare global {
+  interface Window {
+    ethereum: any
+  }
+}
+
 import Image from 'next/image'
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import GoodInfluencer from '../../../utils/GoodInfluencer.json';
 import GoodInfluencerManager from '../../../utils/GoodInfluencerManager.json';
+import { TransactionReceipt } from 'alchemy-sdk/dist/src/types/ethers-types';
 
 export default function Influencer({params} : {params : {account: string}}) { // param: to get url params
-  const [ethereum, setEthereum] = useState(undefined);
+  const [ethereum, setEthereum] = useState<Window['ethereum']>(undefined);
   const [connectedAccount, setConnectedAccount] = useState<string>('');    // connected wallet account
   const [influencerAddress, setInfluencerAddress] = useState<string>(''); // infuencer. account from the url param
   const [goodInfluencerContract, setGoodInfluencerContract] = useState<ethers.Contract>();
   const [managerContract, setManagerContract] = useState<ethers.Contract>();
   const [isRegistered, setRegistration] = useState<boolean>(false);
   const [numTrophy, setNumTrophy] = useState<number>(0);
-  const [donationPrice, setDonationPrice] = useState<number>(0);
+  const [donationPrice, setDonationPrice] = useState<string>('0');
   const [convertedToEthDonationPrice, setConvertedToEthDonationPrice] = useState<string | number>(0);
-
+  
   // TODO: if any contract address has problem, throw an error
   const goodInfluencerContractAddress = process.env.INFLUENCER_CONTRACT_ADDRESS;
   const managerContractAddress = process.env.INFLUENCER_MANAGER_CONTRACT_ADDRESS;
   const handleAccounts = async () => {
+    if(!ethereum) return;
+
     const accounts = await ethereum.request({ method: 'eth_accounts' });
 
     if (accounts.length > 0) {
@@ -50,6 +59,8 @@ export default function Influencer({params} : {params : {account: string}}) { //
       // throw an error
       return;
     }
+    if (!managerContract) return;
+
     const tx = await managerContract.donate(influencerAddress, {value: price});
     const res = await tx.wait();
 
@@ -58,17 +69,15 @@ export default function Influencer({params} : {params : {account: string}}) { //
     // To check event emitting
     // res.logs.forEach((log) => console.log(managerContract.interface.parseLog(log)));
     getTrophy();
-    setDonationPrice(0);
+    setDonationPrice('0');
+    formatEther('0');
   };
   
-  const connectAccount = async () => {
-    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-    handleAccounts(accounts);
-  };
-
   const registerInfluencer = async () => {
+    if (!managerContract) return;
+
     const tx = await managerContract.registerInfluencer(connectedAccount, {gasLimit: 1000000}); // TODO: what's the proper gas estimation?
-    const res = await tx.wait();
+    const res: TransactionReceipt = await tx.wait();
     
     console.log("Transaction:", res, tx);
     res.logs.forEach((log) => console.log(managerContract.interface.parseLog(log)));
@@ -76,11 +85,15 @@ export default function Influencer({params} : {params : {account: string}}) { //
   }
   
   const isRegisterInfluencer = async () => {
+    if (!managerContract) return;
+
     const isRegistered = await managerContract.isRegisteredInfluencer(influencerAddress, {gasLimit: 1000000}); // TODO: what's the proper gas estimation?
     setRegistration(isRegistered);
   }
 
   const getTrophy = async () => {
+    if (!goodInfluencerContract) return;
+    
     const { account } = params; 
     const numTrophy = await goodInfluencerContract.balanceOf(account);
 
@@ -97,7 +110,12 @@ export default function Influencer({params} : {params : {account: string}}) { //
     }
   }
 
-  const formatEther = (val: number) => {
+  const updateDonationPrice = (price: string) => {
+    setDonationPrice(price); 
+    formatEther(price);
+  } 
+
+  const formatEther = (val: string) => {
     if (!val) {
       setConvertedToEthDonationPrice(0);
       return;
@@ -108,7 +126,9 @@ export default function Influencer({params} : {params : {account: string}}) { //
   }
 
   const attachEvents = () => {
-    ethereum.on("accountsChanged", (args) => {
+    if (!managerContract) return;
+
+    ethereum.on("accountsChanged", (args: string[]) => {
       console.log(`accountsChanged from ${connectedAccount} to ${args[0]}`);
       if (args[0] !== connectedAccount) {
         setConnectedAccount(args[0]);
@@ -135,9 +155,8 @@ export default function Influencer({params} : {params : {account: string}}) { //
   }, [ethereum]);
 
   useEffect(() => {
-    if (managerContract) return;
     setContracts();
-  }, [connectAccount]);
+  }, [connectedAccount]);
 
   useEffect(() => {
     if (managerContract) {
@@ -170,15 +189,16 @@ export default function Influencer({params} : {params : {account: string}}) { //
           <input 
             type="number" 
             value={donationPrice}
-            onChange={e => { setDonationPrice(e.currentTarget.value); formatEther(e.currentTarget.value); }}
+            min='0'
+            onChange={e => { updateDonationPrice(e.currentTarget.value); }}
             id="donationPrice" 
             className='p-4 text-black' />
           
           <button 
             id='donateButton' 
             className='p-6 bg-teal-700 disabled:bg-gray-700 disabled:cursor-not-allowed'
-            disabled={!connectedAccount || 0 >= donationPrice}
-            onClick={_ => {donate(donationPrice)}}>
+            disabled={!connectedAccount || 0 >= parseInt(donationPrice)}
+            onClick={_ => {donate(parseInt(donationPrice))}}>
             Donate (wei)
           </button>
         </div>
