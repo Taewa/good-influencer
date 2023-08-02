@@ -207,7 +207,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
       </section>
 
       <button 
-        className='p-6 mb-4 rounded-md bg-teal-700'
+        className='p-6 mb-4 rounded-md bg-teal-700 disabled:bg-gray-700 disabled:cursor-not-allowed'
         disabled={isRegistered}
         onClick={registerInfluencer}>
         Register me as an influencer
