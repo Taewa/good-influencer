@@ -38,7 +38,8 @@ export default function Influencer({params} : {params : {account: string}}) { //
 
       setConnectedAccount(account);
     } else {
-      console.log("No authorized accounts yet");
+      console.log("No authorized accounts yet. Request accounts.");
+      await ethereum.request({ method: 'eth_requestAccounts' });
     }
   };
 
