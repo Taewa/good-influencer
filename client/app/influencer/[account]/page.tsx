@@ -13,6 +13,11 @@ import GoodInfluencer from '../../../utils/GoodInfluencer.json';
 import GoodInfluencerManager from '../../../utils/GoodInfluencerManager.json';
 import { TransactionReceipt } from 'alchemy-sdk/dist/src/types/ethers-types';
 
+interface InfluencerInfo {
+  addr: string;
+  desc: string;
+}
+
 export default function Influencer({params} : {params : {account: string}}) { // param: to get url params
   const [ethereum, setEthereum] = useState<Window['ethereum']>(undefined);
   const [connectedAccount, setConnectedAccount] = useState<string>('');    // connected wallet account
@@ -23,10 +28,20 @@ export default function Influencer({params} : {params : {account: string}}) { //
   const [numTrophy, setNumTrophy] = useState<number>(0);
   const [donationPrice, setDonationPrice] = useState<string>('0');
   const [convertedToEthDonationPrice, setConvertedToEthDonationPrice] = useState<string | number>(0);
+  const [influencerInfo, setInfluencerInfo] = useState<InfluencerInfo>({addr: '', desc: ''} );
   
   // TODO: if any contract address has problem, throw an error
   const goodInfluencerContractAddress = process.env.INFLUENCER_CONTRACT_ADDRESS;
   const managerContractAddress = process.env.INFLUENCER_MANAGER_CONTRACT_ADDRESS;
+
+  const getInfluencerInfo = async () => {
+    const addr = params.account.slice(2);
+    const response = await fetch(`http://localhost:8888/influencer?address=${addr}`);
+    const influencerInfo = await response.json();
+
+    setInfluencerInfo(influencerInfo);
+  }
+
   const handleAccounts = async () => {
     if(!ethereum) return;
 
@@ -146,6 +161,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
   }
   
   useEffect(() => {
+    getInfluencerInfo();
     init();
   }, []);
   
@@ -183,7 +199,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
       <p className='py-8 text-xl'>🏆 Trophy: {numTrophy}</p>
       {isRegistered ? <p className='text-green-600'>Currently registered influencer</p> : <p className='text-red-600'>Currently not registered influencer</p>}
 
-      <p id='description' className='py-8 text-lg'>Hi! I am a software engineer and love helping my coworkers!</p>
+      <p id='description' className='py-8 text-lg'>{influencerInfo.desc}</p>
 
       <section className='mb-4'>
         <div id='donationBlock' className='flex rounded-md overflow-hidden'>
