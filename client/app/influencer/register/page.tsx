@@ -9,6 +9,7 @@ export default function RegisterInfluencer() {
   const [file, setFile] = useState<File | null>(null);
   const [base64, setBase64] = useState<string | null>(null);
 
+  const domain = process.env.MODE === 'dev' ? 'http://localhost:8888' : 'https://good-influencer-be-fk8d-m21099rz3-taewa.vercel.app/';
   const uploadInfluencerInfo = async (e:React.MouseEvent<HTMLButtonElement, MouseEvent>, addr: string, userDesc:string, file: File | null) => {
     e.preventDefault();
 
@@ -27,7 +28,7 @@ export default function RegisterInfluencer() {
       photo: base64,
     }
 
-    await fetch('http://localhost:8888/influencer/register', {
+    await fetch(`${domain}/influencer/register`, {
       method: 'POST',
       body: JSON.stringify(body),
       headers: {
