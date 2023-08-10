@@ -1,20 +1,32 @@
 'use client'
 
 import { useState } from "react";
+import ImageHandlerInstance from '../../services/ImageHandler';
 
 export default function RegisterInfluencer() {
   const [userDesc, setUserDesc] = useState('');
   const [userAddr, setUserAddr] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const [base64, setBase64] = useState<string | null>(null);
 
-  const uploadInfluencerInfo = async (e:Event, addr: string, userDesc:string) => {
+  const uploadInfluencerInfo = async (e:React.MouseEvent<HTMLButtonElement, MouseEvent>, addr: string, userDesc:string, file: File | null) => {
     e.preventDefault();
 
-    if(!addr || !userDesc) return; // TODO: throw an error
+    if(!addr || !userDesc || !file) {
+      // TODO: throw an error
+      console.log('need to fill the form');
+      return;
+    }; 
+    const base64 = await ImageHandlerInstance.toBase64(file as File);
+    
+    setBase64(base64 as string);
 
     const body = {
-      addr,
+      addr: addr.slice(2),
       desc: userDesc,
+      photo: base64,
     }
+
     await fetch('http://localhost:8888/influencer/register', {
       method: 'POST',
       body: JSON.stringify(body),
@@ -22,7 +34,22 @@ export default function RegisterInfluencer() {
         "Content-type": "application/json; charset=UTF-8"
       }
     });
+
+    setFile(null);
+    setBase64(null);
   }
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) {
+      return;
+    }
+  
+    setFile(e.target.files[0]);
+  };
+
+  const onPhotoUploadClick = (e: React.MouseEvent<HTMLInputElement>) => {
+    e.currentTarget.value = "";
+  };
 
   return (
     <main className="flex min-h-screen flex-col items-center p-24 pt-10">
@@ -43,9 +70,18 @@ export default function RegisterInfluencer() {
           onChange={e => setUserDesc(e.currentTarget.value) }
         />
 
+        <label htmlFor='photo' className="block pb-4">Add your beautiful photo!</label>
+        <input 
+          type="file" 
+          name="photo" 
+          accept="image/*" 
+          className="block"
+          onChange={onFileChange}
+          onClick={onPhotoUploadClick} />
+
         <button 
-          className='p-6 mb-4 rounded-md bg-teal-700 disabled:bg-gray-700 disabled:cursor-not-allowed'
-          onClick={e => uploadInfluencerInfo(e, userAddr, userDesc)}>
+          className='w-full p-6 my-4 rounded-md bg-teal-700 disabled:bg-gray-700 disabled:cursor-not-allowed'
+          onClick={(e:React.MouseEvent<HTMLButtonElement, MouseEvent>) => {uploadInfluencerInfo(e, userAddr, userDesc, file)}}>
           Register
         </button>
       </form>

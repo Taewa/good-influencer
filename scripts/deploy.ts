@@ -1,4 +1,7 @@
 import { ethers, upgrades } from "hardhat";
+// Sepolia testnet
+// goodInfluencer address: 0xf780dB1caeE620a61a337b4F744A76D5ccD28575
+// manager address :  0x03F791D5F396D4c4D04bBC046daf26380c1BaB40
 
 async function main() {
   /**

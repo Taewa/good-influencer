@@ -12,10 +12,12 @@ import { ethers } from "ethers";
 import GoodInfluencer from '../../../utils/GoodInfluencer.json';
 import GoodInfluencerManager from '../../../utils/GoodInfluencerManager.json';
 import { TransactionReceipt } from 'alchemy-sdk/dist/src/types/ethers-types';
+import ImageHandlerInstance from '../../services/ImageHandler';
 
 interface InfluencerInfo {
   addr: string;
   desc: string;
+  photo: File | string | undefined;
 }
 
 export default function Influencer({params} : {params : {account: string}}) { // param: to get url params
@@ -28,7 +30,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
   const [numTrophy, setNumTrophy] = useState<number>(0);
   const [donationPrice, setDonationPrice] = useState<string>('0');
   const [convertedToEthDonationPrice, setConvertedToEthDonationPrice] = useState<string | number>(0);
-  const [influencerInfo, setInfluencerInfo] = useState<InfluencerInfo>({addr: '', desc: ''} );
+  const [influencerInfo, setInfluencerInfo] = useState<InfluencerInfo>({addr: '', desc: '', photo: undefined} );
   
   // TODO: if any contract address has problem, throw an error
   const goodInfluencerContractAddress = process.env.INFLUENCER_CONTRACT_ADDRESS;
@@ -186,20 +188,24 @@ export default function Influencer({params} : {params : {account: string}}) { //
   return (
     <main className="flex min-h-screen flex-col items-center p-24 pt-10">
       <section>
-      <Image
-        src="/influencer.jpeg"
-        alt="Influencer image"
-        width={200}
-        height={24}
-        priority
-        className='rounded-full'
-      />
+        {
+          ImageHandlerInstance && influencerInfo?.photo &&
+          <Image
+            src={influencerInfo?.photo as string}
+            alt="Influencer image"
+            width={200}
+            height={24}
+            priority
+            className='rounded-full'
+          />
+        }
+      
       </section>
 
       <p className='py-8 text-xl'>🏆 Trophy: {numTrophy}</p>
       {isRegistered ? <p className='text-green-600'>Currently registered influencer</p> : <p className='text-red-600'>Currently not registered influencer</p>}
 
-      <p id='description' className='py-8 text-lg'>{influencerInfo.desc}</p>
+      <p id='description' className='py-8 text-lg'>{influencerInfo?.desc}</p>
 
       <section className='mb-4'>
         <div id='donationBlock' className='flex rounded-md overflow-hidden'>
