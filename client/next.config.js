@@ -9,7 +9,7 @@ const {
  * When your run next build or npm run build in production, if the environmental variable ACCEPTANCE is set to 1, isAcceptance will be set and you will get those values returned.
  */
 /** @type {import('next').NextConfig} */
-module.exports = (phase) => {
+module.exports = async (phase) => {
     // when started in development mode `next dev` or `npm run dev` regardless of the value of ACCEPTANCE environment variable
     const isLocal = phase === PHASE_DEVELOPMENT_SERVER && process.env.TESTNET !== '1'
     const isTestNet = phase === PHASE_DEVELOPMENT_SERVER && process.env.TESTNET === '1'
@@ -28,6 +28,14 @@ module.exports = (phase) => {
             if (isProd) return 'prod'
             return 'MODE:not (isLocal,isProd && !isAcceptance,isProd && isAcceptance)'
         })(),
+        API_DOMAIN: (() => {
+            const nonLocalDomain = 'https://good-influencer-be-fk8d-6sjybhv89-taewa.vercel.app';
+            if (isLocal) return 'http://localhost:8888'
+            if (isTestNet) return nonLocalDomain
+            if (isAcceptance) return nonLocalDomain
+            if (isProd) return nonLocalDomain
+            return 'MODE:not (isLocal,isProd && !isAcceptance,isProd && isAcceptance)'
+        })(),
         INFLUENCER_CONTRACT_ADDRESS: (() => {
             if (isLocal) return '0x3Aa5ebB10DC797CAC828524e59A333d0A371443c'
             if (isTestNet) return '0xf780dB1caeE620a61a337b4F744A76D5ccD28575'
@@ -44,8 +52,58 @@ module.exports = (phase) => {
         })(),
     }
 
+    // headers = async () => {
+    //     return [
+    //       {
+    //         // matching all API routes
+    //         source:  "/(.*?)",
+    //         // headers: [
+    //         //     {
+    //         //       key: 'x-custom-header',
+    //         //       value: 'my custom header value',
+    //         //     },
+    //         //     {
+    //         //       key: 'x-another-custom-header',
+    //         //       value: 'my other custom header value',
+    //         //     },
+    //         // ],
+    //         headers: [
+    //           { key: "Access-Control-Allow-Credentials", value: "true" },
+    //           { key: "Access-Control-Allow-Origin", value: "*" },
+    //           { key: "Access-Control-Allow-Methods", value: "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
+    //           { key: "Access-Control-Allow-Headers", value: "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version" },
+    //         ]
+    //       }
+    //     ]
+    // }
+
     // next.config.js object
     return {
         env,
+        // async headers () {
+        //     return [
+        //       {
+        //         // matching all API routes
+        //         // source:  "/(.*)",
+        //         source:  "/:path*",
+        //         // headers: [
+        //         //     {
+        //         //       key: 'x-custom-header',
+        //         //       value: 'my custom header value',
+        //         //     },
+        //         //     {
+        //         //       key: 'x-another-custom-header',
+        //         //       value: 'my other custom header value',
+        //         //     },
+        //         // ],
+        //         headers: [
+        //           { key: "Access-Control-Allow-Credentials", value: "true" },
+        //           { key: "Access-Control-Allow-Origin", value: "*" },
+        //           { key: "Access-Control-Allow-Methods", value: "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
+        //           { key: "Access-Control-Allow-Headers", value: "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version" },
+        //         ]
+        //       }
+        //     ]
+        // },
     }
 }
