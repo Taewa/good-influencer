@@ -39,7 +39,15 @@ export default function Influencer({params} : {params : {account: string}}) { //
 
   const getInfluencerInfo = async () => {
     const addr = params.account.slice(2);
-    const response = await fetch(`${domain}/influencer?address=${addr}`);
+    const response = await fetch(`${domain}/influencer?address=${addr}`, {
+      method: 'GET',
+      headers: {
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET,OPTIONS,PATCH,DELETE,POST,PUT',
+        'Access-Control-Allow-Headers': 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version',
+      },
+    });
     const influencerInfo = await response.json();
 
     setInfluencerInfo(influencerInfo);
