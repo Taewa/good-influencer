@@ -35,7 +35,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
   // TODO: if any contract address has problem, throw an error
   const goodInfluencerContractAddress = process.env.INFLUENCER_CONTRACT_ADDRESS;
   const managerContractAddress = process.env.INFLUENCER_MANAGER_CONTRACT_ADDRESS;
-  const domain = process.env.MODE === 'dev' ? 'http://localhost:8888' : 'https://good-influencer-be-fk8d-m21099rz3-taewa.vercel.app/';
+  const domain = process.env.MODE === 'dev' ? 'http://localhost:8888' : 'https://good-influencer-be-fk8d-p0b10qx37-taewa.vercel.app/';
 
   const getInfluencerInfo = async () => {
     const addr = params.account.slice(2);
