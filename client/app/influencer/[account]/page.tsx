@@ -32,6 +32,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
   const [convertedToEthDonationPrice, setConvertedToEthDonationPrice] = useState<string | number>(0);
   const [influencerInfo, setInfluencerInfo] = useState<InfluencerInfo>({addr: '', desc: '', photo: undefined} );  // from Backend
   const [influencerPrize, setInfluencerPrize] = useState<string | number>(0);                                     // from Blockchain
+  const [isEventInited, setIsEventInited] = useState<boolean>(false);
   
   // TODO: if any contract address has problem, throw an error
   const goodInfluencerContractAddress = process.env.INFLUENCER_CONTRACT_ADDRESS;
@@ -185,6 +186,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
 
   const attachEvents = () => {
     if (!managerContract) return;
+    if (isEventInited) return;
 
     ethereum.on("accountsChanged", (args: string[]) => {
       console.log(`accountsChanged from ${connectedAccount} to ${args[0]}`);
@@ -200,6 +202,8 @@ export default function Influencer({params} : {params : {account: string}}) { //
     managerContract.on("Donate", (_donator, _influencer, _donation) => {
       console.log("Donate event", _donator, _influencer, _donation);
     });
+
+    setIsEventInited(true);
   }
   
   useEffect(() => {
