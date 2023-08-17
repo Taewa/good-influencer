@@ -30,7 +30,8 @@ export default function Influencer({params} : {params : {account: string}}) { //
   const [numTrophy, setNumTrophy] = useState<number>(0);
   const [donationPrice, setDonationPrice] = useState<string>('0');
   const [convertedToEthDonationPrice, setConvertedToEthDonationPrice] = useState<string | number>(0);
-  const [influencerInfo, setInfluencerInfo] = useState<InfluencerInfo>({addr: '', desc: '', photo: undefined} );
+  const [influencerInfo, setInfluencerInfo] = useState<InfluencerInfo>({addr: '', desc: '', photo: undefined} );  // from Backend
+  const [influencerPrize, setInfluencerPrize] = useState<string | number>(0);                                     // from Blockchain
   
   // TODO: if any contract address has problem, throw an error
   const goodInfluencerContractAddress = process.env.INFLUENCER_CONTRACT_ADDRESS;
@@ -83,7 +84,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
 
   const donate = async(price: number) => {
     if (!price || 0 > price ) {
-      // throw an error
+      // TODO: throw an error
       return;
     }
     if (!managerContract) return;
@@ -99,6 +100,28 @@ export default function Influencer({params} : {params : {account: string}}) { //
     setDonationPrice('0');
     formatEther('0');
   };
+
+  const withdraw = async() => {
+    if(connectedAccount.toLowerCase() !== influencerAddress.toLowerCase()) {
+      // TODO: display error UI
+      console.log('current wallet account should match with this page influencer');
+      return;  // only this page's influencer can withdraw
+    }
+    
+    if(!influencerPrize || influencerPrize === 0 || influencerPrize === '0') {
+      // TODO: display error UI
+      console.log('prize should be greater than 0');
+      return;
+    }
+
+    const tx = await managerContract.withdraw(influencerPrize, {gasLimit: 1000000}); // TODO: what's the proper gas estimation?
+    const res: TransactionReceipt = await tx.wait();
+
+    console.log("Transaction:", res, tx);
+    res.logs.forEach((log) => console.log(managerContract.interface.parseLog(log)));
+
+    getDonatedPrize(influencerAddress);
+  }
   
   const registerInfluencer = async () => {
     if (!managerContract) return;
@@ -125,6 +148,14 @@ export default function Influencer({params} : {params : {account: string}}) { //
     const numTrophy = await goodInfluencerContract.balanceOf(account);
 
     setNumTrophy(numTrophy.toString());
+  }
+
+  const getDonatedPrize = async (influencerAddress: string) => {
+    if (!managerContract) return;
+
+    const [_, totalDonatedPrize] = await managerContract.achievements(influencerAddress);
+    
+    setInfluencerPrize(totalDonatedPrize);
   }
 
   const init = () => {
@@ -191,6 +222,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
       attachEvents();
       getTrophy();
       isRegisterInfluencer();
+      getDonatedPrize(influencerAddress);
     }
   }, [managerContract]);
 
@@ -237,8 +269,18 @@ export default function Influencer({params} : {params : {account: string}}) { //
         <p className='text-center text-sm'>equivalent to {convertedToEthDonationPrice} ETH</p>
       </section>
 
+      <section className='w-full mb-4'>
+        <button
+          className='w-full p-6 rounded-md bg-violet-700 disabled:bg-gray-700 disabled:cursor-not-allowed'
+          disabled={connectedAccount.toLowerCase() !== influencerAddress.toLowerCase()}
+          onClick={withdraw}>
+            Withdraw {influencerPrize.toString()} wei
+        </button>
+        <p className='text-sm'>Ether: {ethers.formatEther(influencerPrize)}</p>
+      </section>
+
       <button 
-        className='p-6 mb-4 rounded-md bg-teal-700 disabled:bg-gray-700 disabled:cursor-not-allowed'
+        className='w-full p-6 mb-4 rounded-md bg-teal-700 disabled:bg-gray-700 disabled:cursor-not-allowed'
         disabled={isRegistered}
         onClick={registerInfluencer}>
         Register me as an influencer
