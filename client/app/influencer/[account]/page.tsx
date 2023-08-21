@@ -96,18 +96,21 @@ export default function Influencer({params} : {params : {account: string}}) { //
         // TODO: throw an error
         return;
       }
+
       if (!managerContract) return;
       setIsLoading(true);
       const tx = await managerContract.donate(influencerAddress, {value: price});
       const res = await tx.wait();
-  
-      console.log("Transaction:", res, tx);
+      const updatedPrize = Number(influencerPrize) + price;
+      
+      console.log("Transaction donate:", res, tx);
       
       // To check event emitting
       // res.logs.forEach((log) => console.log(managerContract.interface.parseLog(log)));
       getTrophy();
       setDonationPrice('0');
       formatEther('0');
+      setInfluencerPrize(updatedPrize);
       setIsLoading(false);
     } catch(e) {
       setIsLoading(false);
@@ -142,17 +145,6 @@ export default function Influencer({params} : {params : {account: string}}) { //
     } catch(e) {
       setIsLoading(false);
     }
-  }
-  
-  const registerInfluencer = async () => {
-    if (!managerContract) return;
-
-    const tx = await managerContract.registerInfluencer(connectedAccount, {gasLimit: 1000000}); // TODO: what's the proper gas estimation?
-    const res: TransactionReceipt = await tx.wait();
-    
-    console.log("Transaction:", res, tx);
-    res.logs.forEach((log) => console.log(managerContract.interface.parseLog(log)));
-    isRegisterInfluencer();
   }
   
   const isRegisterInfluencer = async () => {
