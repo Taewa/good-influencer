@@ -300,14 +300,6 @@ export default function Influencer({params} : {params : {account: string}}) { //
         </button>
         <p className='text-sm'>Ether: {ethers.formatEther(influencerPrize)}</p>
       </section>
-
-      <button 
-        className='w-full p-6 mb-4 rounded-md bg-teal-700 disabled:bg-gray-700 disabled:cursor-not-allowed'
-        disabled={isRegistered}
-        onClick={registerInfluencer}>
-        Register me as an influencer
-      </button>
-      {isRegistered && <p className='text-gray-600'>You are already registered influencer :)</p>}
      
       {!connectedAccount && <p className='text-red-600'>Please connect to your wallet.</p>}
       {
