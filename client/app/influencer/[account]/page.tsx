@@ -13,6 +13,7 @@ import GoodInfluencer from '../../../utils/GoodInfluencer.json';
 import GoodInfluencerManager from '../../../utils/GoodInfluencerManager.json';
 import { TransactionReceipt } from 'alchemy-sdk/dist/src/types/ethers-types';
 import ImageHandlerInstance from '../../services/ImageHandler';
+import Spinner from '../../components/Spinner';
 
 interface InfluencerInfo {
   addr: string;
@@ -33,6 +34,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
   const [influencerInfo, setInfluencerInfo] = useState<InfluencerInfo>({addr: '', desc: '', photo: undefined} );  // from Backend
   const [influencerPrize, setInfluencerPrize] = useState<string | number>(0);                                     // from Blockchain
   const [isEventInited, setIsEventInited] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   
   // TODO: if any contract address has problem, throw an error
   const goodInfluencerContractAddress = process.env.INFLUENCER_CONTRACT_ADDRESS;
@@ -40,19 +42,24 @@ export default function Influencer({params} : {params : {account: string}}) { //
   const domain = process.env.API_DOMAIN;
 
   const getInfluencerInfo = async () => {
-    const addr = params.account.slice(2);
-    const response = await fetch(`${domain}/influencer?address=${addr}`, {
-      method: 'GET',
-      headers: {
-        'Access-Control-Allow-Credentials': 'true',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,PATCH,DELETE,POST,PUT',
-        'Access-Control-Allow-Headers': 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version',
-      },
-    });
-    const influencerInfo = await response.json();
-
-    setInfluencerInfo(influencerInfo);
+    try {
+      setIsLoading(true);
+      const addr = params.account.slice(2);
+      const response = await fetch(`${domain}/influencer?address=${addr}`, {
+        method: 'GET',
+        headers: {
+          'Access-Control-Allow-Credentials': 'true',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET,OPTIONS,PATCH,DELETE,POST,PUT',
+          'Access-Control-Allow-Headers': 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version',
+        },
+      });
+      const influencerInfo = await response.json();
+      setInfluencerInfo(influencerInfo);
+      setIsLoading(false);
+    } catch(e) {
+      setIsLoading(false);
+    }
   }
 
   const handleAccounts = async () => {
@@ -84,22 +91,27 @@ export default function Influencer({params} : {params : {account: string}}) { //
   }
 
   const donate = async(price: number) => {
-    if (!price || 0 > price ) {
-      // TODO: throw an error
-      return;
-    }
-    if (!managerContract) return;
-
-    const tx = await managerContract.donate(influencerAddress, {value: price});
-    const res = await tx.wait();
-
-    console.log("Transaction:", res, tx);
-    
-    // To check event emitting
-    // res.logs.forEach((log) => console.log(managerContract.interface.parseLog(log)));
-    getTrophy();
-    setDonationPrice('0');
-    formatEther('0');
+    try {
+      if (!price || 0 > price ) {
+        // TODO: throw an error
+        return;
+      }
+      if (!managerContract) return;
+      setIsLoading(true);
+      const tx = await managerContract.donate(influencerAddress, {value: price});
+      const res = await tx.wait();
+  
+      console.log("Transaction:", res, tx);
+      
+      // To check event emitting
+      // res.logs.forEach((log) => console.log(managerContract.interface.parseLog(log)));
+      getTrophy();
+      setDonationPrice('0');
+      formatEther('0');
+      setIsLoading(false);
+    } catch(e) {
+      setIsLoading(false);
+    } 
   };
 
   const withdraw = async() => {
@@ -115,13 +127,19 @@ export default function Influencer({params} : {params : {account: string}}) { //
       return;
     }
 
-    const tx = await managerContract.withdraw(influencerPrize, {gasLimit: 1000000}); // TODO: what's the proper gas estimation?
-    const res: TransactionReceipt = await tx.wait();
+    try {
+      setIsLoading(true);
+      const tx = await managerContract.withdraw(influencerPrize, {gasLimit: 1000000}); // TODO: what's the proper gas estimation?
+      const res: TransactionReceipt = await tx.wait();
 
-    console.log("Transaction:", res, tx);
-    res.logs.forEach((log) => console.log(managerContract.interface.parseLog(log)));
+      console.log("Transaction:", res, tx);
+      res.logs.forEach((log) => console.log(managerContract.interface.parseLog(log)));
 
-    getDonatedPrize(influencerAddress);
+      getDonatedPrize(influencerAddress);
+      setIsLoading(false);
+    } catch(e) {
+      setIsLoading(false);
+    }
   }
   
   const registerInfluencer = async () => {
@@ -276,7 +294,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
       <section className='w-full mb-4'>
         <button
           className='w-full p-6 rounded-md bg-violet-700 disabled:bg-gray-700 disabled:cursor-not-allowed'
-          disabled={connectedAccount.toLowerCase() !== influencerAddress.toLowerCase()}
+          disabled={connectedAccount.toLowerCase() !== influencerAddress.toLowerCase() || influencerPrize == 0}
           onClick={withdraw}>
             Withdraw {influencerPrize.toString()} wei
         </button>
@@ -292,6 +310,10 @@ export default function Influencer({params} : {params : {account: string}}) { //
       {isRegistered && <p className='text-gray-600'>You are already registered influencer :)</p>}
      
       {!connectedAccount && <p className='text-red-600'>Please connect to your wallet.</p>}
+      {
+        isLoading? <Spinner></Spinner> : ''
+      }
+      
     </main>
   )
 }
