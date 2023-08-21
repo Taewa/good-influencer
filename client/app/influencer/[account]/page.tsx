@@ -126,6 +126,8 @@ export default function Influencer({params} : {params : {account: string}}) { //
       console.log('prize should be greater than 0');
       return;
     }
+    
+    if (!managerContract) return;
 
     try {
       setIsLoading(true);
