@@ -81,7 +81,7 @@ export default function RegisterInfluencer() {
   const registerInfluencer = async (account: string) => {
     if (!managerContract) return;
 
-    const tx = await managerContract.registerInfluencer(account, {gasLimit: 1000000}); // TODO: what's the proper gas estimation?
+    const tx = await managerContract.registerInfluencer(account);
     const res: TransactionReceipt = await tx.wait();
     
     console.log("Transaction:", res, tx);

@@ -134,7 +134,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
 
     try {
       setIsLoading(true);
-      const tx = await managerContract.withdraw(influencerPrize, {gasLimit: 1000000}); // TODO: what's the proper gas estimation?
+      const tx = await managerContract.withdraw(influencerPrize);
       const res: TransactionReceipt = await tx.wait();
 
       console.log("Transaction:", res, tx);
@@ -150,7 +150,8 @@ export default function Influencer({params} : {params : {account: string}}) { //
   const isRegisterInfluencer = async () => {
     if (!managerContract) return;
 
-    const isRegistered = await managerContract.isRegisteredInfluencer(influencerAddress, {gasLimit: 1000000}); // TODO: what's the proper gas estimation?
+    const isRegistered = await managerContract.isRegisteredInfluencer(influencerAddress);
+
     setRegistration(isRegistered);
   }
 
