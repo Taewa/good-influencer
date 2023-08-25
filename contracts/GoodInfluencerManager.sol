@@ -30,13 +30,14 @@ contract GoodInfluencerManager is Initializable {
       _;
     }
 
-    //TODO: 자기 스스로 도네이션 못하게 하기
     function donate(address _influencer) public payable onlyRegistered(_influencer) {
         require(msg.value > 0, "Minimum ETH is required.");
 
-        // Q: Defining variables are more expensive in terms of gas but better code readability.
+        // Defining variables are more tiny a bit more expensive in terms of gas but better code readability.
         address _donator = msg.sender;
         uint256 _donation = msg.value;
+        
+        require(_donator != _influencer, "You cannot donate youself.");
 
         Achievement storage _achievement = achievements[_influencer];
         

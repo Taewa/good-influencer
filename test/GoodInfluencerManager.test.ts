@@ -146,6 +146,22 @@ describe('GoodInfluencerManager', async () => {
       ).revertedWith('Only for registered address.');
     });
 
+    it('should not be able to donate if donator and receiver is the same', async() => {
+      // set up influencer
+      await managerContract
+      .connect(influencer)
+      .registerInfluencer(influencer.address);
+
+      await expect(
+        managerContract
+          .connect(influencer)
+          .donate(influencer.address, { // <- donating itself
+            from: influencer.address,
+            value: 500
+          })
+      ).revertedWith('You cannot donate youself.');
+    });
+
     it('should have a trophy after a donation', async() => {
        // set up influencer
        await managerContract
