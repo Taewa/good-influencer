@@ -4,6 +4,7 @@ import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { GoodInfluencer } from "../typechain-types/contracts/GoodInfluencer";
 import { GoodInfluencerManager } from "../typechain-types/contracts/GoodInfluencerManager";
+import { MockContractForTest } from "../typechain-types/contracts/MockContractForTest";
 
 describe('GoodInfluencerManager', async () => {
   let managerContract:GoodInfluencerManager;
@@ -13,6 +14,7 @@ describe('GoodInfluencerManager', async () => {
   let influencer:SignerWithAddress;
   let donator1:SignerWithAddress;
   let donator2:SignerWithAddress;
+  let mockContract:MockContractForTest;
 
   beforeEach(async() => {
     accounts = await ethers.getSigners();
@@ -26,6 +28,7 @@ describe('GoodInfluencerManager', async () => {
     influencerContract = await InfluencerContractFactory.deploy(deployer.address);
 
     await influencerContract.deployed();
+
     // console.log(`deployed GoodInfluencer address is :${influencerContract.address}`);
 
    /**
@@ -57,6 +60,12 @@ describe('GoodInfluencerManager', async () => {
 
     await managerContract.deployed();
 
+    const MockContractForTest = await ethers.getContractFactory("MockContractForTest");
+    
+    mockContract = await MockContractForTest.deploy(managerContract.address);
+
+    await mockContract.deployed();
+
     // console.log(`MANGER managerContract.runner is :${managerContract.address}`);
   });
 
@@ -71,12 +80,22 @@ describe('GoodInfluencerManager', async () => {
       expect(isEnabled).to.be.true;
     });
 
-    it('should not register influencer', async() => {
+    it('should not register influencer if msg.sender is not the same', async() => {
       await expect(
         managerContract
         .connect(deployer)  // it should be the same as influencer
         .registerInfluencer(influencer.address)
       ).revertedWith('Only influencers themselves can register.');
+    });
+
+    it('should not register if sender is a contract', async() => {
+      /**
+       * note that the below is an eternal contract. Not the manager contract.
+       * this tests to check whether the method accept contract address as parameter or not (it shouldn't)
+       */
+      await expect(
+        mockContract.callRegister() 
+      ).revertedWith('A contract is not allowed as influencer.');
     });
   });
 
@@ -336,7 +355,7 @@ describe('GoodInfluencerManager', async () => {
       expect(totalDonatedAmount.toNumber()).to.be.equal(0);
     });
 
-    it('should be not able to withdraw as influencer if the amount is exceeded', async() => {
+    it('should not be able to withdraw as influencer if the amount is exceeded', async() => {
       await expect(
         managerContract
         .connect(influencer)
@@ -346,6 +365,16 @@ describe('GoodInfluencerManager', async () => {
       const [_, totalDonatedAmount] = await managerContract.achievements(influencer.address);
 
       expect(totalDonatedAmount.toNumber()).to.be.equal(120);  // 100 + 20
+    });
+
+    it('should not be able to withdraw if withdrawer is a contract', async() => {
+      /**
+       * note that the below is an eternal contract. Not the manager contract.
+       * this tests to check whether the method accept contract as msg.sender or not (it shouldn't)
+       */
+      await expect(
+        mockContract.callWithdraw()
+      ).revertedWith('A contract is not allowed to withdraw.');
     });
 
     xit('should emit Withdraw event after withdraw() execution', async () => {

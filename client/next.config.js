@@ -37,14 +37,14 @@ module.exports = async (phase) => {
             return 'MODE:not (isLocal,isProd && !isAcceptance,isProd && isAcceptance)'
         })(),
         INFLUENCER_CONTRACT_ADDRESS: (() => {
-            if (isLocal) return '0x3Aa5ebB10DC797CAC828524e59A333d0A371443c'
+            if (isLocal) return '0x9A676e781A523b5d0C0e43731313A708CB607508'
             if (isTestNet) return '0xf780dB1caeE620a61a337b4F744A76D5ccD28575'
             if (isAcceptance) return '0xf780dB1caeE620a61a337b4F744A76D5ccD28575'
             if (isProd) return ''
             return 'INFLUENCER_CONTRACT_ADDRESS:not (isLocal,isProd && !isAcceptance,isProd && isAcceptance)'
         })(),
         INFLUENCER_MANAGER_CONTRACT_ADDRESS: (() => {
-            if (isLocal) return '0xc6e7DF5E7b4f2A278906862b61205850344D4e7d'
+            if (isLocal) return '0x0B306BF915C4d645ff596e518fAf3F9669b97016'
             if (isTestNet) return '0x03F791D5F396D4c4D04bBC046daf26380c1BaB40'
             if (isAcceptance) return '0x03F791D5F396D4c4D04bBC046daf26380c1BaB40'
             if (isProd) return ''

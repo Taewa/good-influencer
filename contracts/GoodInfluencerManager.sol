@@ -63,9 +63,17 @@ contract GoodInfluencerManager is Initializable {
         }
     }
 
-    //TODO: 스마트컨트랙트가 등록못하게하기
     function registerInfluencer(address _influencer) external {
         require(msg.sender == _influencer, "Only influencers themselves can register.");
+        
+        bool _isContract = false;
+
+        assembly {
+            // Check whether given address is a contract or not. If it's greater than 0, it's a contract otherwise an account.
+            _isContract := gt(extcodesize(_influencer), 0)
+        }
+
+        require(!_isContract, 'A contract is not allowed as influencer.');
 
         // To prevent donating a wrong address
         achievements[_influencer].isEnabled = true;
@@ -73,8 +81,16 @@ contract GoodInfluencerManager is Initializable {
         emit RegisteringInfluencer(_influencer, block.timestamp);
     }
 
-    //TODO: 스마트컨트랙트가 못가져가게 하기
     function withdraw(uint256 _amount) payable external {
+        bool _isContract = false;
+
+        assembly {
+            // Check whether given address is a contract or not. If it's greater than 0, it's a contract otherwise an account.
+            _isContract := gt(extcodesize(caller()), 0)
+        }
+
+        require(!_isContract, 'A contract is not allowed to withdraw.');
+
         uint256 _totalDonation = achievements[msg.sender].totalDonation;
 
         require(_totalDonation > 0 && _totalDonation >= _amount , "You cannot withdraw greater than you have.");
