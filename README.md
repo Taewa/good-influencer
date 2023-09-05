@@ -7,7 +7,7 @@ Therefore I created this app which influencers can receive donations as Ether.
 Also the influencers will receive a trophy whenever they get a donation which will permanently carved in the Blockchain and this can be a proof of great team player!
 
 ## Demo
-[Link](https://good-influencer-hlst9pu0j-taewa.vercel.app/) (A wallet is required to connect)
+[Link](https://good-influencer-q5v9fs7li-taewa.vercel.app/) (A wallet is required to connect)
 
 ## Tech stack
 * Solidity (yul)
