@@ -38,15 +38,15 @@ module.exports = async (phase) => {
         })(),
         INFLUENCER_CONTRACT_ADDRESS: (() => {
             if (isLocal) return '0x9A676e781A523b5d0C0e43731313A708CB607508'
-            if (isTestNet) return '0xf780dB1caeE620a61a337b4F744A76D5ccD28575'
-            if (isAcceptance) return '0xf780dB1caeE620a61a337b4F744A76D5ccD28575'
+            if (isTestNet) return '0x6609ECB6a0fa994a42d23ee8AB06E60B555c29Ba'
+            if (isAcceptance) return '0x6609ECB6a0fa994a42d23ee8AB06E60B555c29Ba'
             if (isProd) return ''
             return 'INFLUENCER_CONTRACT_ADDRESS:not (isLocal,isProd && !isAcceptance,isProd && isAcceptance)'
         })(),
         INFLUENCER_MANAGER_CONTRACT_ADDRESS: (() => {
             if (isLocal) return '0x0B306BF915C4d645ff596e518fAf3F9669b97016'
-            if (isTestNet) return '0x03F791D5F396D4c4D04bBC046daf26380c1BaB40'
-            if (isAcceptance) return '0x03F791D5F396D4c4D04bBC046daf26380c1BaB40'
+            if (isTestNet) return '0x69363b08DcE61B6Be2479130DF8D7293a6BD1A06'
+            if (isAcceptance) return '0x69363b08DcE61B6Be2479130DF8D7293a6BD1A06'
             if (isProd) return ''
             return 'INFLUENCER_MANAGER_CONTRACT_ADDRESS:not (isLocal,isProd && !isAcceptance,isProd && isAcceptance)'
         })(),
