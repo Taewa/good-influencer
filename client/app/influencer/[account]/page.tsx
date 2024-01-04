@@ -8,7 +8,10 @@ declare global {
 
 import Image from 'next/image'
 import { useState, useEffect } from "react";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure } from "@nextui-org/react";
 import { ethers } from "ethers";
+import { serializeError } from '@metamask/rpc-errors';
+import { JsonRpcError as SerializedJsonRpcError } from '@metamask/utils';
 import GoodInfluencer from '../../../utils/GoodInfluencer.json';
 import GoodInfluencerManager from '../../../utils/GoodInfluencerManager.json';
 import { TransactionReceipt } from 'alchemy-sdk/dist/src/types/ethers-types';
@@ -19,6 +22,11 @@ interface InfluencerInfo {
   addr: string;
   desc: string;
   photo: File | string | undefined;
+}
+
+type Modal = {
+  title: string;
+  content: string;
 }
 
 export default function Influencer({params} : {params : {account: string}}) { // param: to get url params
@@ -35,6 +43,8 @@ export default function Influencer({params} : {params : {account: string}}) { //
   const [influencerPrize, setInfluencerPrize] = useState<string | number>(0);                                     // from Blockchain
   const [isEventInited, setIsEventInited] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { isOpen: isModalOpen, onOpen: openModal, onOpenChange: onOpenModalChange } = useDisclosure();
+  const [modalMessage, setModalMessage] = useState<Modal>({title: '', content: ''});
   
   // TODO: if any contract address has problem, throw an error
   const goodInfluencerContractAddress = process.env.INFLUENCER_CONTRACT_ADDRESS;
@@ -91,26 +101,35 @@ export default function Influencer({params} : {params : {account: string}}) { //
   }
 
   const donate = async(price: number) => {
+
     try {
       if (!price || 0 > price ) {
         // TODO: throw an error
         return;
       }
-
+      
       if (!managerContract) return;
       setIsLoading(true);
-      const tx = await managerContract.donate(influencerAddress, {value: price});
-      const res = await tx.wait();
-      const updatedPrize = Number(influencerPrize) + price;
+      try {
+        const tx = await managerContract.donate(influencerAddress, {value: price});
+        const res = await tx.wait();
+        const updatedPrize = Number(influencerPrize) + price;
+        
+        console.log("Transaction donate:", res, tx);
+
+        // To check event emitting
+        // res.logs.forEach((log) => console.log(managerContract.interface.parseLog(log)));
+        getTrophy();
+        setDonationPrice('0');
+        formatEther('0');
+        setInfluencerPrize(updatedPrize);
+      } catch(e: unknown) {
+        let err: SerializedJsonRpcError = serializeError(e);
+
+        setModalMessage({title: 'Oops...something went wrong!', content: err?.data?.cause?.reason});
+        openModal();
+      }
       
-      console.log("Transaction donate:", res, tx);
-      
-      // To check event emitting
-      // res.logs.forEach((log) => console.log(managerContract.interface.parseLog(log)));
-      getTrophy();
-      setDonationPrice('0');
-      formatEther('0');
-      setInfluencerPrize(updatedPrize);
       setIsLoading(false);
     } catch(e) {
       setIsLoading(false);
@@ -218,6 +237,10 @@ export default function Influencer({params} : {params : {account: string}}) { //
 
     setIsEventInited(true);
   }
+
+  const onModalClose = () => {
+    setModalMessage({title: '', content: ''});
+  }
   
   useEffect(() => {
     getInfluencerInfo();
@@ -257,7 +280,6 @@ export default function Influencer({params} : {params : {account: string}}) { //
             className='rounded-full'
           />
         }
-      
       </section>
 
       <p className='py-8 text-xl'>🏆 Trophy: {numTrophy}</p>
@@ -273,7 +295,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
             min='0'
             onChange={e => { updateDonationPrice(e.currentTarget.value); }}
             id="donationPrice" 
-            className='p-4 text-black' />
+            className='p-4 text-black bg-slate-300' />
           
           <button 
             id='donateButton' 
@@ -300,7 +322,24 @@ export default function Influencer({params} : {params : {account: string}}) { //
       {
         isLoading? <Spinner></Spinner> : ''
       }
-      
+
+      <Modal isOpen={isModalOpen} onOpenChange={onOpenModalChange} onClose={onModalClose}>
+        <ModalContent>
+          {(onModalClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">{modalMessage.title}</ModalHeader>
+              <ModalBody>
+                <p>{modalMessage.content}</p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onModalClose}>
+                  Close
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </main>
   )
 }
