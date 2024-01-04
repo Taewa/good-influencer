@@ -8,7 +8,7 @@ declare global {
 
 import Image from 'next/image'
 import { useState, useEffect } from "react";
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure } from "@nextui-org/react";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, modal } from "@nextui-org/react";
 import { ethers } from "ethers";
 import { serializeError } from '@metamask/rpc-errors';
 import { JsonRpcError as SerializedJsonRpcError } from '@metamask/utils';
@@ -17,6 +17,7 @@ import GoodInfluencerManager from '../../../utils/GoodInfluencerManager.json';
 import { TransactionReceipt } from 'alchemy-sdk/dist/src/types/ethers-types';
 import ImageHandlerInstance from '../../services/ImageHandler';
 import Spinner from '../../components/Spinner';
+import { ExclamationTriangleIcon, HandThumbUpIcon } from '@heroicons/react/24/solid'
 
 interface InfluencerInfo {
   addr: string;
@@ -24,9 +25,10 @@ interface InfluencerInfo {
   photo: File | string | undefined;
 }
 
-type Modal = {
+type ModalContents = {
   title: string;
   content: string;
+  icon?: React.ReactElement;
 }
 
 export default function Influencer({params} : {params : {account: string}}) { // param: to get url params
@@ -44,7 +46,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
   const [isEventInited, setIsEventInited] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { isOpen: isModalOpen, onOpen: openModal, onOpenChange: onOpenModalChange } = useDisclosure();
-  const [modalMessage, setModalMessage] = useState<Modal>({title: '', content: ''});
+  const [modalMessage, setModalMessage] = useState<ModalContents>({title: '', content: ''});
   
   // TODO: if any contract address has problem, throw an error
   const goodInfluencerContractAddress = process.env.INFLUENCER_CONTRACT_ADDRESS;
@@ -100,6 +102,15 @@ export default function Influencer({params} : {params : {account: string}}) { //
     }
   }
 
+  const showModal = (contents: ModalContents) => {
+    setModalMessage({
+      title: contents.title, 
+      content: contents.content, 
+      icon: contents.icon,
+    });
+    openModal();
+  };
+
   const donate = async(price: number) => {
 
     try {
@@ -123,11 +134,20 @@ export default function Influencer({params} : {params : {account: string}}) { //
         setDonationPrice('0');
         formatEther('0');
         setInfluencerPrize(updatedPrize);
+
+        showModal({
+          title: 'Transferred', 
+          content: 'Thanks for your donation!', 
+          icon: <HandThumbUpIcon className="flex h-6 w-6 text-blue-500" />
+        });
       } catch(e: unknown) {
         let err: SerializedJsonRpcError = serializeError(e);
 
-        setModalMessage({title: 'Oops...something went wrong!', content: err?.data?.cause?.reason});
-        openModal();
+        showModal({
+          title: 'Oops...something went wrong', 
+          content: err?.data?.cause?.reason, 
+          icon: <ExclamationTriangleIcon className="flex h-6 w-6 text-red-500" />
+        });
       }
       
       setIsLoading(false);
@@ -327,7 +347,10 @@ export default function Influencer({params} : {params : {account: string}}) { //
         <ModalContent>
           {(onModalClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">{modalMessage.title}</ModalHeader>
+              <ModalHeader className="flex gap-1">
+                {modalMessage.icon}
+                <span>{modalMessage.title}</span>
+              </ModalHeader>
               <ModalBody>
                 <p>{modalMessage.content}</p>
               </ModalBody>
