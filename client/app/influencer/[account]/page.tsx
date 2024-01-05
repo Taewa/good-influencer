@@ -141,11 +141,13 @@ export default function Influencer({params} : {params : {account: string}}) { //
           icon: <HandThumbUpIcon className="flex h-6 w-6 text-blue-500" />
         });
       } catch(e: unknown) {
-        let err: SerializedJsonRpcError = serializeError(e);
+        // TODO: not sure why 'cause' doesn't exist in 'Json & ExactOptionalGuard' type
+        // https://github.com/MetaMask/rpc-errors/issues/129
+        const err: any = serializeError(e);
 
         showModal({
           title: 'Oops...something went wrong', 
-          content: err?.data?.cause?.reason, 
+          content: err?.data?.cause?.reason,
           icon: <ExclamationTriangleIcon className="flex h-6 w-6 text-red-500" />
         });
       }
