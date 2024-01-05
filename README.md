@@ -1,10 +1,9 @@
 # Good influencer
 ##  What is it?
-Have you ever felt like "thank you so much!" is not enough for someone who constantly helps you at work?
-Sometimes you have a co-worker who is passionate and encourages other co-workers which leads your project much in positive ways.
-I call them good influencers and believe they deserve more.
-Therefore I created this app which influencers can receive donations as Ether.
-Also the influencers will receive a trophy whenever they get a donation which will permanently carved in the Blockchain and this can be a proof of great team player!
+Have you ever felt that a simple "thank you" isn't enough for a colleague who consistently 
+supports you at work? I've created an app where influencers can receive Ether donations and 
+a trophy (ERC20 token) permanently recorded on the Blockchain as proof of their impactful 
+contributions to the project.
 
 ## Demo
 [Link](https://good-influencer-q5v9fs7li-taewa.vercel.app/) (A wallet is required to connect)

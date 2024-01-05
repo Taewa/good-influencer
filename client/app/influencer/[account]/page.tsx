@@ -11,7 +11,6 @@ import { useState, useEffect } from "react";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, modal } from "@nextui-org/react";
 import { ethers } from "ethers";
 import { serializeError } from '@metamask/rpc-errors';
-import { JsonRpcError as SerializedJsonRpcError } from '@metamask/utils';
 import GoodInfluencer from '../../../utils/GoodInfluencer.json';
 import GoodInfluencerManager from '../../../utils/GoodInfluencerManager.json';
 import { TransactionReceipt } from 'alchemy-sdk/dist/src/types/ethers-types';
