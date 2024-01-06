@@ -288,82 +288,84 @@ export default function Influencer({params} : {params : {account: string}}) { //
   }, [managerContract]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-24 pt-10">
-      <section>
-        {
-          ImageHandlerInstance && influencerInfo?.photo &&
-          <Image
-            src={influencerInfo?.photo as string}
-            alt="Influencer image"
-            width={200}
-            height={24}
-            priority
-            className='rounded-full'
-          />
-        }
-      </section>
+    <main className="flex min-h-screen flex-col items-center justify-center p-24 pt-10">
+      <div className='flex flex-col items-center justify-center max-w-xl'>
+        <section>
+          {
+            ImageHandlerInstance && influencerInfo?.photo &&
+            <Image
+              src={influencerInfo?.photo as string}
+              alt="Influencer image"
+              width={200}
+              height={24}
+              priority
+              className='rounded-full'
+            />
+          }
+        </section>
 
-      <p className='py-8 text-xl'>🏆 Trophy: {numTrophy}</p>
-      {isRegistered ? <p className='text-green-600'>Currently registered influencer</p> : <p className='text-red-600'>Currently not registered influencer</p>}
+        <p className='py-8 text-xl'>🏆 Trophy: {numTrophy}</p>
+        {isRegistered ? <p className='text-green-600'>Currently registered influencer</p> : <p className='text-red-600'>Currently not registered influencer</p>}
 
-      <p id='description' className='py-8 text-lg'>{influencerInfo?.desc}</p>
+        <p id='description' className='py-8 text-lg'>{influencerInfo?.desc}</p>
 
-      <section className='mb-4'>
-        <div id='donationBlock' className='flex rounded-md overflow-hidden'>
-          <input 
-            type="number" 
-            value={donationPrice}
-            min='0'
-            onChange={e => { updateDonationPrice(e.currentTarget.value); }}
-            id="donationPrice" 
-            className='p-4 text-black bg-slate-300' />
-          
-          <button 
-            id='donateButton' 
-            className='p-6 bg-teal-700 disabled:bg-gray-700 disabled:cursor-not-allowed'
-            disabled={!connectedAccount || 0 >= parseInt(donationPrice)}
-            onClick={_ => {donate(parseInt(donationPrice))}}>
-            Donate (wei)
+        <section className='mb-4'>
+          <div id='donationBlock' className='flex rounded-md overflow-hidden'>
+            <input 
+              type="number" 
+              value={donationPrice}
+              min='0'
+              onChange={e => { updateDonationPrice(e.currentTarget.value); }}
+              id="donationPrice" 
+              className='p-4 text-black bg-slate-300' />
+            
+            <button 
+              id='donateButton' 
+              className='p-6 bg-teal-700 disabled:bg-gray-700 disabled:cursor-not-allowed'
+              disabled={!connectedAccount || 0 >= parseInt(donationPrice)}
+              onClick={_ => {donate(parseInt(donationPrice))}}>
+              Donate (wei)
+            </button>
+          </div>
+          <p className='text-center text-sm'>equivalent to {convertedToEthDonationPrice} ETH</p>
+        </section>
+
+        <section className='w-full mb-4'>
+          <button
+            className='flex justify-center w-full p-6 rounded-md bg-purple-700 hover:bg-purple-900 text-purple-500 hover:text-white bg-transparent border border-purple-500 disabled:cursor-not-allowed'
+            disabled={connectedAccount.toLowerCase() !== influencerAddress.toLowerCase() || influencerPrize == 0}
+            onClick={withdraw}>
+              Withdraw {influencerPrize.toString()} wei
           </button>
-        </div>
-        <p className='text-center text-sm'>equivalent to {convertedToEthDonationPrice} ETH</p>
-      </section>
+          <p className='text-sm'>Ether: {ethers.formatEther(influencerPrize)}</p>
+        </section>
+      
+        {!connectedAccount && <p className='text-red-600'>Please connect to your wallet.</p>}
+        {
+          isLoading? <Spinner></Spinner> : ''
+        }
 
-      <section className='w-full mb-4'>
-        <button
-          className='flex justify-center w-full p-6 rounded-md bg-purple-700 hover:bg-purple-900 text-purple-500 hover:text-white bg-transparent border border-purple-500 disabled:cursor-not-allowed'
-          disabled={connectedAccount.toLowerCase() !== influencerAddress.toLowerCase() || influencerPrize == 0}
-          onClick={withdraw}>
-            Withdraw {influencerPrize.toString()} wei
-        </button>
-        <p className='text-sm'>Ether: {ethers.formatEther(influencerPrize)}</p>
-      </section>
-     
-      {!connectedAccount && <p className='text-red-600'>Please connect to your wallet.</p>}
-      {
-        isLoading? <Spinner></Spinner> : ''
-      }
-
-      <Modal isOpen={isModalOpen} onOpenChange={onOpenModalChange} onClose={onModalClose}>
-        <ModalContent>
-          {(onModalClose) => (
-            <>
-              <ModalHeader className="flex gap-1">
-                {modalMessage.icon}
-                <span>{modalMessage.title}</span>
-              </ModalHeader>
-              <ModalBody>
-                <p>{modalMessage.content}</p>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onModalClose}>
-                  Close
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+        <Modal isOpen={isModalOpen} onOpenChange={onOpenModalChange} onClose={onModalClose}>
+          <ModalContent>
+            {(onModalClose) => (
+              <>
+                <ModalHeader className="flex gap-1">
+                  {modalMessage.icon}
+                  <span>{modalMessage.title}</span>
+                </ModalHeader>
+                <ModalBody>
+                  <p>{modalMessage.content}</p>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="danger" variant="light" onPress={onModalClose}>
+                    Close
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+      </div>
     </main>
   )
 }

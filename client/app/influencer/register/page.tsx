@@ -112,43 +112,45 @@ export default function RegisterInfluencer() {
 
   return (
     <main className="flex min-h-screen flex-col items-center p-24 pt-10">
-      <form className="block w-full">
-      <label htmlFor='influencerAccount' className="block pb-4">Your wallet account</label>
-        <input 
-          required
-          name="influencerAccount" 
-          className="w-full p-6 text-black"
-          onChange={e => setUserAddr(e.currentTarget.value)} />
-        
-        <label htmlFor='influencerDesc' className="block pb-4">Tell us who you are!</label>
-        <textarea 
-          required
-          name="influencerDesc" 
-          className="w-full h-60 p-6 text-black" 
-          value={userDesc}
-          onChange={e => setUserDesc(e.currentTarget.value) }
-        />
+      <div className="w-full max-w-xl">
+        <form>
+          <label htmlFor='influencerAccount' className="block pb-4">Your wallet account</label>
+          <input 
+            required
+            name="influencerAccount" 
+            className="w-full p-6 text-black bg-slate-300"
+            onChange={e => setUserAddr(e.currentTarget.value)} />
+          
+          <label htmlFor='influencerDesc' className="block pb-4">Tell us who you are!</label>
+          <textarea 
+            required
+            name="influencerDesc" 
+            className="w-full h-60 p-6 text-black bg-slate-300" 
+            value={userDesc}
+            onChange={e => setUserDesc(e.currentTarget.value) }
+          />
 
-        <label htmlFor='photo' className="block pb-4">Add your beautiful photo!</label>
-        <input 
-          type="file" 
-          name="photo" 
-          accept="image/*" 
-          className="block"
-          onChange={onFileChange}
-          onClick={onPhotoUploadClick} />
+          <label htmlFor='photo' className="block pb-4">Add your beautiful photo!</label>
+          <input 
+            type="file" 
+            name="photo" 
+            accept="image/*" 
+            className="block"
+            onChange={onFileChange}
+            onClick={onPhotoUploadClick} />
 
-        <button 
-          className='flex justify-between w-full p-6 my-4 rounded-md bg-teal-700 hover:bg-teal-900 text-teal-500 hover:text-white bg-transparent border border-teal-500 isabled:cursor-not-allowed'
-          onClick={(e:React.MouseEvent<HTMLButtonElement, MouseEvent>) => {uploadInfluencerInfo(e, userAddr, userDesc, file)}}>
-          Register influencer
-          <ArrowRightIcon className="flex h-6 w-6" />
-        </button>
-      </form>
+          <button 
+            className='flex justify-between w-full p-6 my-4 rounded-md bg-teal-700 hover:bg-teal-900 text-teal-500 hover:text-white bg-transparent border border-teal-500 isabled:cursor-not-allowed'
+            onClick={(e:React.MouseEvent<HTMLButtonElement, MouseEvent>) => {uploadInfluencerInfo(e, userAddr, userDesc, file)}}>
+            Register influencer
+            <ArrowRightIcon className="flex h-6 w-6" />
+          </button>
+        </form>
 
-      {
-        isLoading? <Spinner></Spinner> : ''
-      }
+        {
+          isLoading? <Spinner></Spinner> : ''
+        }
+      </div>
     </main>
   )
 }
