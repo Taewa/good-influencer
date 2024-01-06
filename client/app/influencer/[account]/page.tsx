@@ -16,7 +16,7 @@ import GoodInfluencerManager from '../../../utils/GoodInfluencerManager.json';
 import { TransactionReceipt } from 'alchemy-sdk/dist/src/types/ethers-types';
 import ImageHandlerInstance from '../../services/ImageHandler';
 import Spinner from '../../components/Spinner';
-import { ExclamationTriangleIcon, HandThumbUpIcon } from '@heroicons/react/24/solid'
+import { ExclamationTriangleIcon, HandThumbUpIcon } from '@heroicons/react/24/solid';
 
 interface InfluencerInfo {
   addr: string;
@@ -136,7 +136,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
 
         showModal({
           title: 'Transferred', 
-          content: 'Thanks for your donation!', 
+          content: 'Thanks for your donation! Your influencer will receive a trophy (only one per an address).', 
           icon: <HandThumbUpIcon className="flex h-6 w-6 text-blue-500" />
         });
       } catch(e: unknown) {
@@ -331,7 +331,7 @@ export default function Influencer({params} : {params : {account: string}}) { //
 
       <section className='w-full mb-4'>
         <button
-          className='w-full p-6 rounded-md bg-violet-700 disabled:bg-gray-700 disabled:cursor-not-allowed'
+          className='flex justify-center w-full p-6 rounded-md bg-purple-700 hover:bg-purple-900 text-purple-500 hover:text-white bg-transparent border border-purple-500 disabled:cursor-not-allowed'
           disabled={connectedAccount.toLowerCase() !== influencerAddress.toLowerCase() || influencerPrize == 0}
           onClick={withdraw}>
             Withdraw {influencerPrize.toString()} wei

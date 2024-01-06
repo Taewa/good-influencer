@@ -6,6 +6,7 @@ import ImageHandlerInstance from '../../services/ImageHandler';
 import Spinner from '../../components/Spinner';
 import GoodInfluencerManager from '../../../utils/GoodInfluencerManager.json';
 import { TransactionReceipt } from 'alchemy-sdk/dist/src/types/ethers-types';
+import { ArrowRightIcon } from '@heroicons/react/24/solid';
 
 export default function RegisterInfluencer() {
   const [ethereum, setEthereum] = useState<Window['ethereum']>(undefined);
@@ -138,9 +139,10 @@ export default function RegisterInfluencer() {
           onClick={onPhotoUploadClick} />
 
         <button 
-          className='w-full p-6 my-4 rounded-md bg-teal-700 disabled:bg-gray-700 disabled:cursor-not-allowed'
+          className='flex justify-between w-full p-6 my-4 rounded-md bg-teal-700 hover:bg-teal-900 text-teal-500 hover:text-white bg-transparent border border-teal-500 isabled:cursor-not-allowed'
           onClick={(e:React.MouseEvent<HTMLButtonElement, MouseEvent>) => {uploadInfluencerInfo(e, userAddr, userDesc, file)}}>
           Register influencer
+          <ArrowRightIcon className="flex h-6 w-6" />
         </button>
       </form>
 

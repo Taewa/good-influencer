@@ -1,5 +1,7 @@
 'use client'
 
+import { ArrowRightIcon } from '@heroicons/react/24/solid';
+
 export default function MainPage() {
   const goToDemo = () => {
     window.location.href = '/influencer/0xE0Ef806ce1de350fA0E0203301e1Feb6EeA147C3'; 
@@ -22,12 +24,16 @@ export default function MainPage() {
       </div>
       
       <button 
-        className='p-6 mb-4 rounded-md bg-teal-700 hover:bg-teal-800'
-        onClick={goToDemo}>Go to Demo page
+        className='flex justify-between w-full p-6 mb-4 rounded-md bg-teal-700 hover:bg-teal-900 text-teal-500 hover:text-white bg-transparent border border-teal-500'
+        onClick={goToDemo}>
+          Go to Demo page
+          <ArrowRightIcon className="flex h-6 w-6" />
+
       </button>
       <button 
-        className='p-6 mb-4 rounded-md bg-purple-700 hover:bg-purple-800'
+        className='flex justify-between w-full p-6 mb-4 rounded-md bg-purple-700 hover:bg-purple-900 text-purple-500 hover:text-white bg-transparent border border-purple-500'
         onClick={goToRegistration}>Go to Influencer registration page
+        <ArrowRightIcon className="flex h-6 w-6" />
       </button>
     </main>
   )
