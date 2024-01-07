@@ -4,7 +4,7 @@ pragma solidity 0.8.19;
 import "../GoodInfluencerManager.sol";
 
 contract MockContractForTest {
-    GoodInfluencerManager goodInfluencerManager;
+    GoodInfluencerManager immutable goodInfluencerManager;
 
     constructor(address _goodInfluencerManager) {
 

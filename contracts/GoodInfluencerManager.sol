@@ -40,13 +40,13 @@ contract GoodInfluencerManager is Initializable {
         require(_donator != _influencer, "You cannot donate youself.");
 
         Achievement storage _achievement = achievements[_influencer];
-        
-        updateTrophy(_influencer);
 
         _achievement.totalDonation = _donation + _achievement.totalDonation;
         _achievement.donation[_donator] = _donation + _achievement.donation[_donator];
 
         emit Donate(_donator, _influencer, _donation);
+        
+        updateTrophy(_influencer);
     }
 
     /**
@@ -58,7 +58,9 @@ contract GoodInfluencerManager is Initializable {
         uint256 _donation = achievements[_influencer].donation[msg.sender];
 
         if (_donation == 0) {
-            goodInfluencer.transfer(_influencer, 1);
+            bool result = goodInfluencer.transfer(_influencer, 1);  // Always 1 trophy per address
+            require(result, 'Trophy Transfer has failed.');
+
             emit EarnTrophy(msg.sender, _influencer);
         }
     }
