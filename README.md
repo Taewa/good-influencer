@@ -6,7 +6,7 @@ a trophy (ERC20 token) permanently recorded on the Blockchain as proof of their 
 contributions to the project.
 
 ## Demo
-[Link](https://good-influencer-q5v9fs7li-taewa.vercel.app/) (A wallet is required to connect)
+[Link](https://good-influencer.vercel.app/) (A wallet is required to connect)
 
 ## Tech stack
 * Solidity (yul)
