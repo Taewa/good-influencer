@@ -113,6 +113,7 @@ export default function RegisterInfluencer() {
   return (
     <main className="flex min-h-screen flex-col items-center p-24 pt-10">
       <div className="w-full max-w-xl">
+        <h1 className="text-2xl font-bold mb-2">Register as a cool influencer!</h1>
         <form>
           <label htmlFor='influencerAccount' className="block pb-4">Your wallet account</label>
           <input 
