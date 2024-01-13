@@ -29,7 +29,7 @@ module.exports = async (phase) => {
             return 'MODE:not (isLocal,isProd && !isAcceptance,isProd && isAcceptance)'
         })(),
         API_DOMAIN: (() => {
-            const nonLocalDomain = 'https://good-influencer-be-fk8d-6sjybhv89-taewa.vercel.app';
+            const nonLocalDomain = 'https://good-influencer-be-fk8d-g0mhz0qmo-taewa.vercel.app';
             if (isLocal) return 'http://localhost:8888'
             if (isTestNet) return nonLocalDomain
             if (isAcceptance) return nonLocalDomain
