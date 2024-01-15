@@ -9,9 +9,10 @@ contributions to the project.
 [Link](https://good-influencer.vercel.app/) (A wallet is required to connect)
 
 ## Tech stack
-* Solidity (yul)
+* Solidity (+yul)
 * Upgradeable contracts
 * Hardhat
+* Slither
 * Unit & integration tests
 * Typescript
 * Frontend (NextJs)
