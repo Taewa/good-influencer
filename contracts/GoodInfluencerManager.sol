@@ -20,49 +20,15 @@ contract GoodInfluencerManager is Initializable {
 
     // influencer to achievement
     mapping (address => Achievement) public achievements;
-    
-    function initialize(address payable _goodInfluencer) external initializer {
-        goodInfluencer = GoodInfluencer(_goodInfluencer);
-    }
 
     modifier onlyRegistered(address _influencer) {
-      require(achievements[_influencer].isEnabled, "Only for registered address.");
-      _;
+        require(achievements[_influencer].isEnabled, "Only for registered address.");
+        _;
     }
-
-    function donate(address _influencer) public payable onlyRegistered(_influencer) {
-        require(msg.value > 0, "Minimum ETH is required.");
-
-        // Defining variables are more tiny a bit more expensive in terms of gas but better code readability.
-        address _donator = msg.sender;
-        uint256 _donation = msg.value;
-        
-        require(_donator != _influencer, "You cannot donate youself.");
-
-        Achievement storage _achievement = achievements[_influencer];
-
-        _achievement.totalDonation = _donation + _achievement.totalDonation;
-        _achievement.donation[_donator] = _donation + _achievement.donation[_donator];
-
-        emit Donate(_donator, _influencer, _donation);
-        
-        updateTrophy(_influencer);
-    }
-
-    /**
-    * donator can donate multiple time to an influencer
-    * but influencer will get one time per address
-    * It's to prevent rich people paying -> more trophy
-    */
-    function updateTrophy(address _influencer) internal {
-        uint256 _donation = achievements[_influencer].donation[msg.sender];
-
-        if (_donation == 0) {
-            bool result = goodInfluencer.transfer(_influencer, 1);  // Always 1 trophy per address
-            require(result, 'Trophy Transfer has failed.');
-
-            emit EarnTrophy(msg.sender, _influencer);
-        }
+    
+    // For upgradeable contract
+    function initialize(address payable _goodInfluencer) external initializer {
+        goodInfluencer = GoodInfluencer(_goodInfluencer);
     }
 
     function registerInfluencer(address _influencer) external {
@@ -108,5 +74,40 @@ contract GoodInfluencerManager is Initializable {
 
     function isRegisteredInfluencer(address _influencer) external view returns(bool) {
         return achievements[_influencer].isEnabled;
+    }
+
+    function donate(address _influencer) public payable onlyRegistered(_influencer) {
+        require(msg.value > 0, "Minimum ETH is required.");
+
+        // Defining variables are tiny a bit more expensive in terms of gas but better code readability.
+        address _donator = msg.sender;
+        uint256 _donation = msg.value;
+        
+        require(_donator != _influencer, "You cannot donate youself.");
+
+        Achievement storage _achievement = achievements[_influencer];
+
+        _achievement.totalDonation = _donation + _achievement.totalDonation;
+        _achievement.donation[_donator] = _donation + _achievement.donation[_donator];
+
+        emit Donate(_donator, _influencer, _donation);
+        
+        updateTrophy(_influencer);
+    }
+
+    /**
+    * donator can donate multiple time to an influencer
+    * but influencer will get one time per address
+    * It's to prevent rich people paying -> more trophy
+    */
+    function updateTrophy(address _influencer) internal {
+        uint256 _donation = achievements[_influencer].donation[msg.sender];
+
+        if (_donation == 0) {
+            bool result = goodInfluencer.transfer(_influencer, 1);  // Always 1 trophy per address
+            require(result, 'Trophy Transfer has failed.');
+
+            emit EarnTrophy(msg.sender, _influencer);
+        }
     }
 }
