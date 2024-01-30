@@ -15,8 +15,7 @@ type ModalContents = {
 export default function Providers({ children }: { children: React.ReactNode }) {
   const { isOpen: isModalOpen, onOpen: openModal, onOpenChange: onOpenModalChange } = useDisclosure();
   const [modalMessage, setModalMessage] = useState<ModalContents>({title: '', content: ''});
-  const isMobileOrTablet = DeviceDetector.checkMobileOrTablet();
-  const hasMetaMask = DeviceDetector.hasMetaMask();
+  const [isMobileOrTablet, setMobileOrTablet] = useState<boolean>(false);
   
   const showModal = (contents: ModalContents) => {
     setModalMessage({
@@ -36,6 +35,13 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
+    /**
+     * Anything with 'DeviceDetector' should stay in useEffect since it uses window object
+     */
+    
+    setMobileOrTablet(DeviceDetector.checkMobileOrTablet());
+    const hasMetaMask = DeviceDetector.hasMetaMask();
+
     if(!hasMetaMask) {
       showModal({
         title: 'No Metamask detected :/', 
